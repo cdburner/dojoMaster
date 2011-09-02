@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" 
+			   creationComplete="application1_creationCompleteHandler(event)" 
+			   width="818" height="400">
+	<fx:Style source="Dojo_tests.css"/>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			
+
+			import entities.Line;
+			import entities.Lines;
+			
+			import flashx.textLayout.edit.EditManager;
+			import flashx.textLayout.edit.SelectionManager;
+			import flashx.textLayout.elements.ParagraphElement;
+			import flashx.textLayout.elements.SpanElement;
+			import flashx.textLayout.elements.TextFlow;
+			
+			import mx.events.FlexEvent;
+			import flash.events.KeyboardEvent;
+			
+			import spark.components.RichEditableText;
+			
+			public var lines:Lines = new Lines();
+			public var aLine:Line = new Line();
+			public var sen:String ="";
+			public var numOfLinesDisplayed:uint = 0;
+
+			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			{
+				//masterText.text = "Hello World";
+				masterText.setFocus();
+				masterText.drawFocus(false);
+				 
+				var tmr:Timer = new Timer(200);
+				var tmpLine1:Line = new Line();
+				var tmpLine2:Line = new Line();
+				tmr.addEventListener(TimerEvent.TIMER, onTimer);
+				tmpLine1.addContent("To be or not to be that is the question");
+				lines.addLine(tmpLine1);
+				tmpLine2.addContent("I wandered lonely as a cloud");
+				lines.addLine(tmpLine2);
+				aLine = lines.nextLine();//The first line
+				tmr.start();
+			}
+			
+			private function onTimer(evt:TimerEvent):void
+			{
+				if(aLine.nextCharAvailable())
+				{
+					masterText.text += aLine.nextChar();
+					masterText.setSelection(masterText.length, masterText.length);
+				}
+				else
+				{
+					if (lines.nextLineAvailable() == false)
+					{
+						evt.target.removeEventListener(TimerEvent.TIMER, onTimer);
+						masterText.editable = true;
+					}
+					aLine = lines.nextLine();
+					typeWriter.text += masterText.text + "\n";
+					masterText.text ="";
+					
+				}
+
+			}
+			
+			private function keyHandler(evt:KeyboardEvent):void
+			{
+				if (evt.keyCode == 13)
+				{
+					masterText.text += String.fromCharCode(8629);
+					typeWriter.text += masterText.text + "\n";
+					masterText.text ="";
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:TextInput id="masterText" x="0" y="339" width="818" height="33" borderVisible="false"
+				  editable="false" fontSize="20" text="" textAlign="center" color="#10BBFB" keyDown="keyHandler(event)"/>
+	<s:RichText id="typeWriter" x="0" y="0" width="818" height="365" color="#10BBFB" fontSize="20"
+				text="" textAlign="center" verticalAlign="bottom"/>
+</s:Application>
